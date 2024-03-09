@@ -4,17 +4,14 @@ import { Inter } from "next/font/google";
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
-const MyApp: AppType = ({ Component, pageProps }) => {
+import { ClerkProvider } from "@clerk/nextjs";
+import type { AppProps } from "next/app";
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <main className={`font-sans ${inter.variable}`}>
+    <ClerkProvider {...pageProps}>
       <Component {...pageProps} />
-    </main>
+    </ClerkProvider>
   );
-};
+}
 
 export default api.withTRPC(MyApp);
