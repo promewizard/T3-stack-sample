@@ -1,6 +1,6 @@
 import { type AppType } from "next/app";
 import { Inter } from "next/font/google";
-
+export { reportWebVitals } from "next-axiom";
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
