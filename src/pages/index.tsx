@@ -30,7 +30,7 @@ const CreatePostWizard = () => {
       } else {
         toast.error("something went wrong. Please try again later");
       }
-    },
+    }
   });
 
   if (!user) return null;
@@ -51,7 +51,10 @@ const CreatePostWizard = () => {
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            mutate({ content: input });
+            // e.preventDefault();
+            if (input !== "") {
+              mutate({ content: input });
+            }
           }
         }}
         disabled={isPosting}
@@ -130,8 +133,12 @@ const PostView = (props: PostWithUser) => {
       />
       <div className="flex flex-col">
         <div className="flex font-bold text-slate-300">
-          <span>{`@${props.author.username} `}&nbsp;</span>
-          <span>{` - ${dayjs(props.createdAt).fromNow()}`}</span>
+          <Link href={`/@${props.author.username}`}>
+            <span>{`@${props.author.username} `}&nbsp;</span>
+          </Link>
+          <Link href={`/post/${props.id}`}>
+            <span>{` - ${dayjs(props.createdAt).fromNow()}`}</span>
+          </Link>
         </div>
         <span className="text-xl">{props.content}</span>
       </div>
