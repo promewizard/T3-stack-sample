@@ -1,7 +1,7 @@
 import { sanitizeAuthObject } from "@clerk/nextjs/server";
 import { SpinnerDotted } from "spinners-react";
 
-const LoadingSpinner = (props: { size?: number }) => {
+export const LoadingSpinner = (props: { size?: number }) => {
   return (
     <SpinnerDotted
       size={props.size ?? 50}

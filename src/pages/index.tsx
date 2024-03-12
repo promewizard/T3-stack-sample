@@ -1,19 +1,19 @@
+import { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { SignIn, SignInButton, useUser } from "@clerk/nextjs";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import toast from "react-hot-toast";
 
 dayjs.extend(relativeTime);
 
 import { RouterOutputs, api } from "~/utils/api";
 import Image from "next/image";
-import { LoadingPage } from "~/components/loading";
-import { useState } from "react";
+import { LoadingPage, LoadingSpinner } from "~/components/loading";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
-  console.log(user);
 
   const [input, setInput] = useState("");
   const ctx = api.useUtils();
@@ -22,6 +22,14 @@ const CreatePostWizard = () => {
     onSuccess: () => {
       setInput("");
       ctx.post.getAll.invalidate();
+    },
+    onError: (error) => {
+      const errorMessage = error.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error("something went wrong. Please try again later");
+      }
     },
   });
 
@@ -41,9 +49,21 @@ const CreatePostWizard = () => {
         className="flex-grow bg-transparent outline-none"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            mutate({ content: input });
+          }
+        }}
         disabled={isPosting}
       />
-      <button onClick={() => mutate({ content: input })}>Post</button>
+      {input !== "" && !isPosting && (
+        <button onClick={() => mutate({ content: input })}>Post</button>
+      )}
+      {isPosting && (
+        <div className="flex flex-col justify-center">
+          <LoadingSpinner size={20} />
+        </div>
+      )}
     </div>
   );
 };
