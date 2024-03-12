@@ -9,10 +9,22 @@ dayjs.extend(relativeTime);
 import { RouterOutputs, api } from "~/utils/api";
 import Image from "next/image";
 import { LoadingPage } from "~/components/loading";
+import { useState } from "react";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
   console.log(user);
+
+  const [input, setInput] = useState("");
+  const ctx = api.useUtils();
+
+  const { mutate, isLoading: isPosting } = api.post.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      ctx.post.getAll.invalidate();
+    },
+  });
+
   if (!user) return null;
   return (
     <div className="flex gap-3 ">
@@ -27,7 +39,11 @@ const CreatePostWizard = () => {
         type="text"
         placeholder="Type some emojis!"
         className="flex-grow bg-transparent outline-none"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        disabled={isPosting}
       />
+      <button onClick={() => mutate({ content: input })}>Post</button>
     </div>
   );
 };
@@ -38,7 +54,7 @@ const Feed = () => {
   if (!data) return <div>Something went wrong</div>;
   return (
     <div>
-      {[...data, ...data]?.map((fullPost) => (
+      {data.map((fullPost) => (
         <PostView {...fullPost} key={fullPost.id} />
       ))}
     </div>
