@@ -38,7 +38,6 @@ export const createTRPCContext = (_opts: CreateNextContextOptions) => {
     db,
     userId,
   };
-  // createInnerTRPCContext({});
 };
 
 /**
