@@ -8,6 +8,7 @@ dayjs.extend(relativeTime);
 
 import { RouterOutputs, api } from "~/utils/api";
 import Image from "next/image";
+import { LoadingPage } from "~/components/loading";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -31,13 +32,28 @@ const CreatePostWizard = () => {
   );
 };
 
-export default function Home() {
-  const { data, isLoading } = api.post.getAll.useQuery();
-  const { user, isLoaded } = useUser();
-
-  if (!isLoaded) return <div>Loading...</div>;
-
+const Feed = () => {
+  const { data, isLoading: postLoading } = api.post.getAll.useQuery();
+  if (postLoading) return <LoadingPage />;
   if (!data) return <div>Something went wrong</div>;
+  return (
+    <div>
+      {[...data, ...data]?.map((fullPost) => (
+        <PostView {...fullPost} key={fullPost.id} />
+      ))}
+    </div>
+  );
+};
+
+export default function Home() {
+  const { isLoaded: userLoaded, isSignedIn } = useUser();
+
+  // Start fetching asap
+  api.post.getAll.useQuery();
+
+  if (!userLoaded) return <div />;
+
+  if (!userLoaded) return <LoadingPage />;
 
   return (
     <>
@@ -49,18 +65,14 @@ export default function Home() {
       <main className="flex h-screen justify-center">
         <div className="w-full border-x border-slate-400 md:max-w-2xl">
           <div className="border-b border-slate-400 p-4">
-            {!isLoading && (
+            {!isSignedIn && (
               <div className="flex justify-center">
                 <SignInButton />
               </div>
             )}
-            {isLoading && <CreatePostWizard />}
+            {isSignedIn && <CreatePostWizard />}
           </div>
-          <div>
-            {[...data, ...data]?.map((fullPost) => (
-              <PostView {...fullPost} key={fullPost.id} />
-            ))}
-          </div>
+          <Feed />
         </div>
         <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" />
       </main>
