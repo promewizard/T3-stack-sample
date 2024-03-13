@@ -52,6 +52,24 @@ const ratelimit = new Ratelimit({
 });
 
 export const postRouter = createTRPCRouter({
+
+  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    const postId = Number(input.id);
+
+    if (isNaN(postId)) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Invalid post ID",
+      });
+    }
+    const post = await ctx.db.post.findUnique({
+      where: { id: postId },
+    });
+    if(!post) throw new TRPCError({code:"NOT_FOUND"});
+
+    return (await addUserDataToPosts([post]))[0]; 
+  }),
+
   getAll: publicProcedure.query(async ({ ctx }) => {
     const posts = await ctx.db.post.findMany({
       take: 100,
